@@ -25,7 +25,7 @@
             var textInput = document.getElementById("textInput").value;
 
             // Make a POST request to the FastAPI endpoint
-            fetch("https://threat-detection.onrender.com/predict", {
+            fetch("http://127.0.0.1:8000/predict", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -37,7 +37,7 @@
             .then(response => response.json())
             .then(data => {
                 // Update the result paragraph with the prediction
-                document.getElementById("result").innerText = `Predicted Class: ${data.predicted_class}, Probability: ${data.prediction_prob.toFixed(4)}`;
+                document.getElementById("result").innerText = `Predicted Class: ${data[0]}`;
             })
             .catch(error => {
                 console.error('Error:', error);

@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import pickle
 import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
+import joblib
 
 app = FastAPI()
 
@@ -16,16 +16,13 @@ app.add_middleware(
 
 class LoadModel:
     def load_cnn_model(self, cnn_model_path):
-        with open(cnn_model_path, "rb") as file:
-            cnn_model = pickle.load(file)
+        cnn_model = joblib.load(cnn_model_path)
         return cnn_model
     def load_tfidf_vectorizer(self, tfidf_file_path):
-        with open(tfidf_file_path, "rb") as file:
-            tfidf_vectorizer = pickle.load(file)
+        tfidf_vectorizer = joblib.load(tfidf_file_path)
         return tfidf_vectorizer
     def load_label_encoder(self, label_encoder_path):
-        with open(label_encoder_path, "rb") as file:
-            label_encoder = pickle.load(file)
+        label_encoder = joblib.load(label_encoder_path)
         return label_encoder
 
 # Define input data model
@@ -47,18 +44,18 @@ def predict_hate_speech(input_text: InputText):
     tfidf_vectorizer = model_loader.load_tfidf_vectorizer(tfidf_vectorizer_path)
     label_encoder = model_loader.load_label_encoder(label_encoder_path)
     
+    print("Loaded succusfully")
+    
 
     # Vectorize the text using TF-IDF vectorizer
-    vectorized_text = tfidf_vectorizer.transform([preprocessed_text])
+    vectorized_text = tfidf_vectorizer.transform([preprocessed_text]).toarray()
 
-    # Make predictions using the CNN model
-    cnn_input = np.array(vectorized_text.toarray())  # Convert to NumPy array
-    prediction_prob = cnn_model.predict(cnn_input)[0][0]
+    custom_predictions = cnn_model.predict(vectorized_text)
+    
+    custom_predictions = (custom_predictions> 0.5).astype(int).flatten()
+    
 
-    # Map prediction probability to class label using label encoder
-    predicted_class = label_encoder.inverse_transform([int(round(prediction_prob))])[0]
-
-    return {"text": input_text.text, "predicted_class": predicted_class, "prediction_prob": prediction_prob}
+    return f"text: {input_text.text}  predicted_class: {custom_predictions}"
 
 def preprocess_input(text):
     # Implement your text preprocessing logic here
