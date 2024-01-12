@@ -25,7 +25,7 @@
             var textInput = document.getElementById("textInput").value;
 
             // Make a POST request to the FastAPI endpoint
-            fetch("http://0.0.0.0:8000/predict", {
+            fetch("https://threat-detection.onrender.com/predict", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
