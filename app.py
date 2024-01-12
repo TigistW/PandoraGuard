@@ -63,7 +63,7 @@ def predict_hate_speech(input_text: InputText):
 def preprocess_input(text):
     # Implement your text preprocessing logic here
     # This may include lowercasing, removing stopwords, etc.
-    # Make sure it's consistent with the preprocessing used during training
+    # Should be consistent with the preprocessing used during training
     return text
 
 if __name__ == "__main__":
