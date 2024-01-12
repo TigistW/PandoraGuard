@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hate Speech Detection</title>
+</head>
+<body>
+    <h1>Hate Speech Detection</h1>
+    
+    <form id="textForm">
+        <label for="textInput">Enter Text:</label>
+        <textarea id="textInput" name="text" rows="4" cols="50" required></textarea>
+        <br>
+        <button type="button" onclick="predict()">Predict</button>
+    </form>
+
+    <h2>Result:</h2>
+    <p id="result"></p>
+
+    <script>
+        function predict() {
+            // Get the text from the textarea
+            var textInput = document.getElementById("textInput").value;
+
+            // Make a POST request to the FastAPI endpoint
+            fetch("http://127.0.0.1:8000/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    text: textInput
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the result paragraph with the prediction
+                document.getElementById("result").innerText = `Predicted Class: ${data.predicted_class}, Probability: ${data.prediction_prob.toFixed(4)}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
