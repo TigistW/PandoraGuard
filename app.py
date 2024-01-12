@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
 import joblib
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -21,9 +21,6 @@ class LoadModel:
     def load_tfidf_vectorizer(self, tfidf_file_path):
         tfidf_vectorizer = joblib.load(tfidf_file_path)
         return tfidf_vectorizer
-    def load_label_encoder(self, label_encoder_path):
-        label_encoder = joblib.load(label_encoder_path)
-        return label_encoder
 
 # Define input data model
 class InputText(BaseModel):
@@ -37,12 +34,10 @@ def predict_hate_speech(input_text: InputText):
     model_loader = LoadModel()
     tfidf_vectorizer_path = "tfidf_vectorizer.pkl"
     model_path = "cnn_model.pkl"
-    label_encoder_path = "tfidf_vectorizer.pkl"
     
     
     cnn_model = model_loader.load_cnn_model(model_path)
     tfidf_vectorizer = model_loader.load_tfidf_vectorizer(tfidf_vectorizer_path)
-    label_encoder = model_loader.load_label_encoder(label_encoder_path)
     
     print("Loaded succusfully")
     
@@ -50,12 +45,15 @@ def predict_hate_speech(input_text: InputText):
     # Vectorize the text using TF-IDF vectorizer
     vectorized_text = tfidf_vectorizer.transform([preprocessed_text]).toarray()
 
-    custom_predictions = cnn_model.predict(vectorized_text)
+    probability = cnn_model.predict(vectorized_text)
     
-    custom_predictions = (custom_predictions> 0.5).astype(int).flatten()
+    custom_predictions = (probability> 0.5).astype(int).flatten()
     
-
-    return f"text: {input_text.text}  predicted_class: {custom_predictions}"
+    data = {
+        "predicted_class": str(custom_predictions[0]),
+        "confidence": str(probability[0][0])
+    }
+    return JSONResponse(content=data)
 
 def preprocess_input(text):
     # Implement your text preprocessing logic here
