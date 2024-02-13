@@ -13,7 +13,7 @@ This is a simple FastAPI-based RESTful API for hate speech detection. It utilize
 2. Navigate to the project directory:
 
    ```bash
-   cd PandraGuard
+   cd PandoraGuard
    ```
 
 3. Install dependencies:
